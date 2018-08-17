@@ -8,13 +8,13 @@ public class FirstPersonInput : MonoBehaviour {
     public bool JumpInput { get; private set; }   // boolean for whether or not we've received jump input
 
     FirstPersonMotor firstPersonMotor;
-    Player player;
+    //Player player;
 
     private void Awake()
     {
         // caching
         firstPersonMotor = GetComponent<FirstPersonMotor>();
-        player = GetComponent<Player>();
+        //player = GetComponent<Player>();
     }
 
     private void Update()
@@ -31,8 +31,6 @@ public class FirstPersonInput : MonoBehaviour {
         // store x/y move input as a 0 to 1 value
         float horizontalAmount = Input.GetAxis("Horizontal");
         float verticalAmount = Input.GetAxis("Vertical");
-        Debug.Log(horizontalAmount);
-        Debug.Log(verticalAmount);
 
         // store x/y into a single vector
         Vector2 input = new Vector2(horizontalAmount, verticalAmount);

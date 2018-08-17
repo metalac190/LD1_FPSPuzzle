@@ -51,7 +51,6 @@ public class FirstPersonMotor : MonoBehaviour, IPlayerMotor
     private bool jumpInput;                 //true while jump input is active
     private bool runInput;                  //true while running input is active
     private float yRotation;                // keep track of yRotation so we can clamp it (to avoid camera going upside down)
-    private bool isImpactedByForces;        // other forces are currently impacting this object
     private Vector2 moveInput;                      // x,y axis input for rotating camera
     private Vector2 rotateInput;                    // x,z axis input for moving the character
     private Vector3 moveVector = Vector3.zero;      // movement vector calculated each update that gets passed into Character Controller
@@ -474,8 +473,6 @@ public class FirstPersonMotor : MonoBehaviour, IPlayerMotor
     //Slowly fade the impact force over time
     IEnumerator FadeImpactForce(float fadeTime)
     {
-        // impact state on
-        isImpactedByForces = true;
         // set our timer beginnings
         float elapsedTime = 0;
         // keep looping until we have hit our specified time limit
@@ -489,8 +486,6 @@ public class FirstPersonMotor : MonoBehaviour, IPlayerMotor
             // repeat at the end of the frame
             yield return new WaitForEndOfFrame();
         }
-        // impact state off
-        isImpactedByForces = false;
     }
 
     IEnumerator IEAdjustMoveSpeed(float speedChangeAmount, float duration)

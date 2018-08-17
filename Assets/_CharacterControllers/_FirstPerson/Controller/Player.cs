@@ -9,7 +9,7 @@ public class Player : MonoBehaviour, IPlayer {
 
     #region Variables and Classes
     [Header("Setup")]
-    [SerializeField] PlayerUI playerUIPrefab;     // UI that we will spawn
+    //[SerializeField] PlayerUI playerUIPrefab;     // UI that we will spawn
     [SerializeField] Camera playerCamera;        // camera that should be active after player spawn
     public Camera PlayerCamera { get { return playerCamera; } }
     [SerializeField] Behaviour[] disableComponentsOnDeath;    // components to disable on death
@@ -44,7 +44,7 @@ public class Player : MonoBehaviour, IPlayer {
     Health health = null;          //Reference to player's health, so that we can access it later
 
     Collider playerCollider = null;
-    PlayerUI playerUIInstance = null;
+    //PlayerUI playerUIInstance = null;
     IPlayerMotor playerMotor = null;      // reference to the player motor
 
     #endregion
@@ -96,16 +96,13 @@ public class Player : MonoBehaviour, IPlayer {
         if (playerCamera != null)
             playerCamera = Camera.main;
 
-        // create and setup player UI. We spawn UI last so that all other player values are already set
-        if(playerUIPrefab != null)
-            CreatePlayerUI();
-
         //TODO add Spawn Audio
 
         // run any designated player spawn events
         //OnPlayerSpawn.Invoke();
     }
 
+    /*
     //Set up and create the Player UI
     void CreatePlayerUI()
     {
@@ -115,6 +112,7 @@ public class Player : MonoBehaviour, IPlayer {
         playerUIInstance.gameObject.name = playerUIPrefab.name;
         playerUIInstance.Initialize(this);
     }
+    */
     #endregion
 
     #region Custom Functions
@@ -159,11 +157,6 @@ public class Player : MonoBehaviour, IPlayer {
         {
             disableGameObjectsOnDeath[i].SetActive(false);
         }
-    }
-
-    public void DisablePlayerUI()
-    {
-        playerUIInstance.gameObject.SetActive(false);
     }
 
     //Coroutine for Stun function
