@@ -19,11 +19,13 @@ public class CameraController : MonoBehaviour {
 
     Player activePlayer;    // need this reference for listening for the Player Death event
     PlayerSpawner playerSpawner;
+    GameManager gameManager;
 
     public void Awake()
     {
         // external references
         playerSpawner = FindObjectOfType<PlayerSpawner>();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     private void Start()
@@ -49,13 +51,13 @@ public class CameraController : MonoBehaviour {
     private void OnEnable()
     {
         playerSpawner.OnPlayerSpawn += HandlePlayerSpawn;
-        playerSpawner.OnPlayerDespawn += HandlePlayerDespawn;
+        gameManager.OnWaitState += HandleWaitState;
     }
 
     private void OnDisable()
     {
         playerSpawner.OnPlayerSpawn -= HandlePlayerSpawn;
-        playerSpawner.OnPlayerDespawn -= HandlePlayerDespawn;
+        gameManager.OnWaitState -= HandleWaitState;
     }
 
     // turn off all of our level cameras, in case they were left on accidentally
@@ -95,8 +97,8 @@ public class CameraController : MonoBehaviour {
         ActivatePlayerCamera();
     }
 
-    // clean up for when player dies
-    void HandlePlayerDespawn(Player player)
+    // no longer in game
+    void HandleWaitState()
     {
         activePlayer = null;
         ActivateSceneCamera();

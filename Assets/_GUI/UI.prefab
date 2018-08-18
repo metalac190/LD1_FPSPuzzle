@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 114475820744557732}
   - component: {fileID: 114726490751906646}
   m_Layer: 5
-  m_Name: GameUI_Cnv
+  m_Name: WaitUI_Cnv
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -957,7 +957,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2092cce4ead4d34a91929ff339b32ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameUI: {fileID: 114726490751906646}
+  waitUI: {fileID: 114726490751906646}
   playerUI: {fileID: 114490847184329230}
   messageUI: {fileID: 114396195803917236}
   pauseUI: {fileID: 114798637443674936}

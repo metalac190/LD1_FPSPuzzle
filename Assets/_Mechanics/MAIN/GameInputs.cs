@@ -22,15 +22,22 @@ public class GameInputs : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        // handle Intro State inputs
-        if (gameManager.CurrentGameState == GameManager.GameState.Intro)
+        // handle Wait State inputs
+        if (gameManager.IsPaused)
+        {
+            CheckUnpauseInput();
+            return;
+        }
+
+        if (gameManager.CurrentGameState == GameState.Wait)
         {
             CheckQuitInput();
             CheckSpawnInput();
         }
         // handle Game State inputs
-        if (gameManager.CurrentGameState == GameManager.GameState.Game)
+        if (gameManager.CurrentGameState == GameState.Game)
         {
+            CheckPauseInput();
             CheckQuitInput();
             CheckReloadInput();
             CheckReverseCheckpointInput();
@@ -55,7 +62,7 @@ public class GameInputs : MonoBehaviour {
         }
     }
 
-    private static void CheckReloadInput()
+    private void CheckReloadInput()
     {
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
@@ -69,15 +76,30 @@ public class GameInputs : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Space))
         {
             gameManager.ActivateGameState();
-            playerSpawner.SpawnPlayer();
         }
     }
 
-    private static void CheckQuitInput()
+    private void CheckQuitInput()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
+        }
+    }
+
+    private void CheckPauseInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            gameManager.Pause();
+        }
+    }
+
+    private void CheckUnpauseInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            gameManager.Unpause();
         }
     }
     #endregion

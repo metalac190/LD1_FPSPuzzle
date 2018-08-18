@@ -49,6 +49,6 @@ public class PlayerUI : MonoBehaviour {
     // disconnect from current player
     public void ClearPlayer()
     {
-        
+        playerHealth = null;
     }
 }

@@ -22,7 +22,7 @@ GameObject:
   m_Layer: 0
   m_Name: PlayerStart
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 49b611e658efbf443b686a4036f74fe3, type: 3}
+  m_Icon: {fileID: 2800000, guid: 29cfc55125da6a24dbca9873dc4c8a1b, type: 3}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -94,14 +94,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5239265647138d146a3276fb5f4843c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeCheckPointIndex: -1
-  savedInventory:
-    smallCollectibles: 0
-    largeCollectibles: 0
-    keys: 0
   playerToSpawn: {fileID: 114167980364359290, guid: 5e9e851c0e142814dac026a256ba2ac0,
     type: 2}
-  playerStartPosition: {fileID: 4041995405887640}
+  spawnedPlayerName: Player
+  despawnTimeAfterDeath: 2
+  playerStart: {fileID: 4041995405887640}
 --- !u!114 &114844242750211030
 MonoBehaviour:
   m_ObjectHideFlags: 1

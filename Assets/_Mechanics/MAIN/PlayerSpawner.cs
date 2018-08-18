@@ -13,6 +13,7 @@ public class PlayerSpawner : MonoBehaviour {
     public event Action<Player> OnPlayerSpawn = delegate { };
     public event Action<Player> OnPlayerDespawn = delegate { };
 
+    [SerializeField] Transform playerStart;
     CheckPoint[] checkPoints;       // list of all checkpoints in our level
     int activeCheckPointIndex = -1;        // start at -1 so that we can increase to 0 (the first checkpoint)
 
@@ -63,11 +64,13 @@ public class PlayerSpawner : MonoBehaviour {
         {
             activeCheckPointIndex++;
         }
+
         // we hopped checkpoints, make sure we spawn there too
         Transform newLocation = checkPoints[activeCheckPointIndex].gameObject.transform;
-        DataManager.instance.SetPlayerSpawnLocation(newLocation.position, newLocation.rotation);
-        // reload so that we load in at the correct place
-        SceneLoader.ReloadSceneStatic();
+        DataManager.Instance.SetPlayerSpawn(newLocation.position, newLocation.rotation);
+        // move player to the new checkpoint
+        ActivePlayer.transform.position = newLocation.position;
+        ActivePlayer.transform.rotation = newLocation.rotation;
     }
 
     public void ReverseCheckPoint()
@@ -89,31 +92,56 @@ public class PlayerSpawner : MonoBehaviour {
         }
         // we hopped checkpoints, make sure we spawn there too
         Transform newLocation = checkPoints[activeCheckPointIndex].gameObject.transform;
-        
-        DataManager.instance.SetPlayerSpawnLocation(newLocation.position, newLocation.rotation);
-        // reload so that we load in at the correct place
-        SceneLoader.ReloadSceneStatic();
+        DataManager.Instance.SetPlayerSpawn(newLocation.position, newLocation.rotation);
+        // move player to the new checkpoint
+        ActivePlayer.transform.position = newLocation.position;
+        ActivePlayer.transform.rotation = newLocation.rotation;
     }
 
     public void SpawnPlayer()
     {
-        Debug.Log("Player Spawned!");
+        Debug.Log("Spawn Player!");
         if (PlayerExists())
         {
-            Debug.LogWarning("Player already exists, cannot spawn another.");
+            Debug.LogWarning("Player al  ready exists, cannot spawn another.");
             return;
+        }
+        // calculate spawn positions for readability
+        Vector3 newSpawnPosition = DetermineSpawnPosition();
+        Quaternion newSpawnRotation = DetermineSpawnRotation();
+        // spawn the player at the new location
+        ActivePlayer = Instantiate(playerToSpawn, newSpawnPosition, newSpawnRotation);
+        // rename it so that we don't have the 'clone' tag after spawning
+        ActivePlayer.gameObject.name = spawnedPlayerName;
+        // let subscribers know
+        OnPlayerSpawn.Invoke(ActivePlayer);
+        // listen for when the player dies, so we know when to despawn
+        ActivePlayer.OnPlayerDeath += HandlePlayerDeath;
+    }
+
+    Vector3 DetermineSpawnPosition()
+    {
+        // if we're respawning at level start, use that. Otherwise pull from saved spawn point
+        if (DataManager.Instance.SavedPlayerSpawn.usePlayerStart)
+        {
+            return playerStart.position;
         }
         else
         {
-            // calculate spawn positions for readability
-            Vector3 newPlayerPosition = gameManager.PlayerSpawn.playerPosition;
-            Quaternion newPlayerRotation = gameManager.PlayerSpawn.playerRotation;
-            ActivePlayer = Instantiate(playerToSpawn, newPlayerPosition, newPlayerRotation);
-            // rename it so that we don't have the 'clone' tag after spawning
-            ActivePlayer.gameObject.name = spawnedPlayerName;
-            OnPlayerSpawn.Invoke(ActivePlayer);
-            // listen for when the player dies, so we know when to despawn
-            ActivePlayer.OnPlayerDeath += HandlePlayerDeath;
+            return DataManager.Instance.SavedPlayerSpawn.playerPosition;
+        }
+    }
+
+    Quaternion DetermineSpawnRotation()
+    {
+        // if we're respawning at level start, use that. Otherwise pull from saved spawn point
+        if (DataManager.Instance.SavedPlayerSpawn.usePlayerStart)
+        {
+            return playerStart.rotation;
+        }
+        else
+        {
+            return DataManager.Instance.SavedPlayerSpawn.playerRotation;
         }
     }
 
@@ -121,16 +149,10 @@ public class PlayerSpawner : MonoBehaviour {
     {
         // stop listening, then handle despawn/respawn
         ActivePlayer.OnPlayerDeath -= HandlePlayerDeath;
-        PlayerDespawn(despawnTimeAfterDeath);
+        StartCoroutine(PlayerDespawn(despawnTimeAfterDeath));
     }
 
-    public IEnumerator PlayerRespawn(float timeUntilSpawn)
-    {
-        yield return new WaitForSeconds(timeUntilSpawn);
-        SpawnPlayer();
-    }
-
-    public bool PlayerExists()
+    bool PlayerExists()
     {
         Player testPlayer = FindObjectOfType<Player>();
         if (testPlayer != null)
@@ -139,11 +161,19 @@ public class PlayerSpawner : MonoBehaviour {
             return false;
     }
 
+    public IEnumerator PlayerRespawn(float timeUntilSpawn)
+    {
+        yield return new WaitForSeconds(timeUntilSpawn);
+        SpawnPlayer();
+    }
+
     IEnumerator PlayerDespawn(float despawnTime)
     {
         yield return new WaitForSeconds(despawnTime);
         OnPlayerDespawn.Invoke(ActivePlayer);
         // destory the player, as the final step
         Destroy(ActivePlayer.gameObject);
+        // no player, we are now in wait state
+        gameManager.ActivateWaitState();
     }
 }

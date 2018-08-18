@@ -88,26 +88,14 @@ public class Player : MonoBehaviour, IPlayer {
         }
 
         // set active camera to this player
-        if (playerCamera != null)
-            playerCamera = Camera.main;
+        //if (playerCamera != null)
+            //playerCamera = Camera.main;
 
         //TODO add Spawn Audio
 
         // run any designated player spawn events
         //OnPlayerSpawn.Invoke();
     }
-
-    /*
-    //Set up and create the Player UI
-    void CreatePlayerUI()
-    {
-        // create PlayerUI and save the reference into our UIinstance
-        playerUIInstance = Instantiate(playerUIPrefab);
-        // rename it so that we don't have the 'clone' tag after spawning
-        playerUIInstance.gameObject.name = playerUIPrefab.name;
-        playerUIInstance.Initialize(this);
-    }
-    */
     #endregion
 
     #region Custom Functions
