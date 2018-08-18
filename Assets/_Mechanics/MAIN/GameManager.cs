@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public enum GameState { Wait, Game};
 // Game Manager holds most of the level relevant game data
 [RequireComponent(typeof(PlayerSpawner))]
-[RequireComponent(typeof(LevelSpawner))]
+[RequireComponent(typeof(CollectibleSpawner))]
 [RequireComponent(typeof(GameInputs))]
 public class GameManager : MonoBehaviour {
 
@@ -30,26 +30,18 @@ public class GameManager : MonoBehaviour {
     public void Awake()
     {
         // load game data 
-        InitializeData();
-        Load();
+        LoadData();
         // Initialize relevant scripts
         GetComponent<PlayerSpawner>().Initialize(this);
-        GetComponent<LevelSpawner>().Initialize(this);
+        FindObjectOfType<CollectibleSpawner>().Initialize(this);
         GetComponent<GameInputs>().Initialize(this);
         FindObjectOfType<UIManager>().Initialize(this);
         // set initial game state
         ActivateWaitState();
     }
 
-    void InitializeData()
+    public void LoadData()
     {
-        //unsavedCollectedIDs = new List<float>();
-        //playerInventory = new InventoryData();
-    }
-
-    public void Load()
-    {
-        Debug.Log("Load...");
         playerInventory = DataManager.Instance.SavedPlayerInventory;
     }
 
@@ -69,7 +61,7 @@ public class GameManager : MonoBehaviour {
     {
         IsPaused = true;
         Time.timeScale = 0;
-        //TODO lock player inputs
+        //TODO lock player mouse movement
         OnPause.Invoke();
     }
 
@@ -77,11 +69,11 @@ public class GameManager : MonoBehaviour {
     {
         IsPaused = false;
         Time.timeScale = 1;
-        //TODO lock player inputs
+        //TODO lock player mouse movement
         OnUnpause.Invoke();
     }
 
-    public void Save()
+    public void SaveData()
     {
         Debug.Log("Save...");
         DataManager.Instance.SavePlayerInventory(playerInventory);
