@@ -5,34 +5,12 @@ using System;
 
 public class LevelSpawner : MonoBehaviour {
 
-    private List<LevelCollectibleData> savedLevelCollectibles = new List<LevelCollectibleData>();
-    public List<float> UnSavedItemIDs { get; private set; }
-    public List<float> SavedItemIDs { get; private set; }
+    GameManager gameManager;
 
-    public void Initialize()
+    public void Initialize(GameManager gameManager)
     {
-        GameManager.instance.OnSave += HandleSave;
-        GameManager.instance.OnLevelLoad += HandleLevelLoad;
-    }
-
-    private void OnDisable()
-    {
-        GameManager.instance.OnSave -= HandleSave;
-        GameManager.instance.OnLevelLoad -= HandleLevelLoad;
-    }
-
-    void HandleSave()
-    {
-        // save all of our unsaved items
-        foreach(float item in UnSavedItemIDs)
-        {
-            SavedItemIDs.Add(item);
-        }
-    }
-
-    void HandleLevelLoad()
-    {
-        DestroyPreviouslyCollectedItems();
+        // inject
+        this.gameManager = gameManager;
     }
 
     public void DestroyPreviouslyCollectedItems()

@@ -5,10 +5,6 @@ using System;
 
 public class PlayerSpawner : MonoBehaviour {
 
-
-    public PlayerSpawnData PlayerSpawn { get; private set; }
-    [SerializeField] private InventoryData savedInventory = new InventoryData();     // saved inventory that gets loaded into player on spawn
-
     [SerializeField] Player playerToSpawn;   // Player prefab to spawn
     [SerializeField] string spawnedPlayerName = "Player";
     [SerializeField] Transform playerStartPosition; // player starting position
@@ -18,21 +14,15 @@ public class PlayerSpawner : MonoBehaviour {
     CheckPoint[] checkPoints;       // list of all checkpoints in our level
     int activeCheckPointIndex = -1;        // start at -1 so that we can increase to 0 (the first checkpoint)
 
-    public void Initialize()
+    GameManager gameManager;
+
+    public void Initialize(GameManager gameManager)
     {
-        // events
-        GameManager.instance.OnLevelLoad += HandleLevelLoad;
-
-        PlayerSpawn = new PlayerSpawnData();
-
+        // inject
+        this.gameManager = gameManager;
         // setup checkpoints in this level
         InitializeCheckPoints();
-        SetPlayerSpawnLocation(playerStartPosition.position, playerStartPosition.rotation);
-    }
-
-    private void OnDestroy()
-    {
-        GameManager.instance.OnLevelLoad -= HandleLevelLoad;
+        DataManager.instance.SetPlayerSpawnLocation(playerStartPosition.position, playerStartPosition.rotation);
     }
 
     void HandleLevelLoad()
@@ -70,9 +60,9 @@ public class PlayerSpawner : MonoBehaviour {
         }
         // we hopped checkpoints, make sure we spawn there too
         Transform newLocation = checkPoints[activeCheckPointIndex].gameObject.transform;
-        SetPlayerSpawnLocation(newLocation.position, newLocation.rotation);
+        DataManager.instance.SetPlayerSpawnLocation(newLocation.position, newLocation.rotation);
         // reload so that we load in at the correct place
-        GameManager.instance.ReloadLevel();
+        SceneLoader.ReloadSceneStatic();
     }
 
     public void ReverseCheckPoint()
@@ -94,9 +84,9 @@ public class PlayerSpawner : MonoBehaviour {
         }
         // we hopped checkpoints, make sure we spawn there too
         Transform newLocation = checkPoints[activeCheckPointIndex].gameObject.transform;
-        SetPlayerSpawnLocation(newLocation.position, newLocation.rotation);
+        DataManager.instance.SetPlayerSpawnLocation(newLocation.position, newLocation.rotation);
         // reload so that we load in at the correct place
-        GameManager.instance.ReloadLevel();
+        SceneLoader.ReloadSceneStatic();
     }
 
     public void SpawnPlayer()
@@ -109,11 +99,13 @@ public class PlayerSpawner : MonoBehaviour {
         }
         else
         {
-            Player spawnedPlayer = Instantiate(playerToSpawn,PlayerSpawn.playerPosition,PlayerSpawn.playerRotation);
+            Vector3 newPlayerPosition = DataManager.instance.SavedPlayerSpawn.playerPosition;
+            Quaternion newPlayerRotation = DataManager.instance.SavedPlayerSpawn.playerRotation;
+            Player spawnedPlayer = Instantiate(playerToSpawn, newPlayerPosition, newPlayerRotation);
             // rename it so that we don't have the 'clone' tag after spawning
             spawnedPlayer.gameObject.name = spawnedPlayerName;
             // set in GameManager singleton so that it's easier to access
-            GameManager.instance.SetPlayer(spawnedPlayer);
+            gameManager.SetPlayer(spawnedPlayer);
             // notify anything else, if they care
             OnPlayerSpawn.Invoke(spawnedPlayer);
         }
@@ -123,13 +115,6 @@ public class PlayerSpawner : MonoBehaviour {
     {
         yield return new WaitForSeconds(timeUntilSpawn);
         SpawnPlayer();
-    }
-
-    public void SetPlayerSpawnLocation(Vector3 newSpawnLocation, Quaternion newSpawnRotation)
-    {
-        // store these values
-        PlayerSpawn.playerPosition = newSpawnLocation;
-        PlayerSpawn.playerRotation = newSpawnRotation;
     }
 
     public bool PlayerExists()
