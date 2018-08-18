@@ -7,28 +7,33 @@ public class PlayerSpawner : MonoBehaviour {
 
     [SerializeField] Player playerToSpawn;   // Player prefab to spawn
     [SerializeField] string spawnedPlayerName = "Player";
-    [SerializeField] Transform playerStartPosition; // player starting position
+    //[SerializeField] Transform playerStartPosition; // player starting position
+    [SerializeField] float despawnTimeAfterDeath = 2f;
 
     public event Action<Player> OnPlayerSpawn = delegate { };
+    public event Action<Player> OnPlayerDespawn = delegate { };
 
     CheckPoint[] checkPoints;       // list of all checkpoints in our level
     int activeCheckPointIndex = -1;        // start at -1 so that we can increase to 0 (the first checkpoint)
 
+    public Player ActivePlayer { get; private set; }
     GameManager gameManager;
 
     public void Initialize(GameManager gameManager)
     {
         // inject
         this.gameManager = gameManager;
+        // events
+        gameManager.OnGameState += HandleGameState;
         // setup checkpoints in this level
         InitializeCheckPoints();
-        DataManager.instance.SetPlayerSpawnLocation(playerStartPosition.position, playerStartPosition.rotation);
+        //DataManager.instance.SetPlayerSpawnLocation(playerStartPosition.position, playerStartPosition.rotation);
     }
 
-    void HandleLevelLoad()
+    void HandleGameState()
     {
-        // setup checkpoints in this level
-        InitializeCheckPoints();
+        // the game has started
+        SpawnPlayer();
     }
 
     void InitializeCheckPoints()
@@ -84,6 +89,7 @@ public class PlayerSpawner : MonoBehaviour {
         }
         // we hopped checkpoints, make sure we spawn there too
         Transform newLocation = checkPoints[activeCheckPointIndex].gameObject.transform;
+        
         DataManager.instance.SetPlayerSpawnLocation(newLocation.position, newLocation.rotation);
         // reload so that we load in at the correct place
         SceneLoader.ReloadSceneStatic();
@@ -99,16 +105,23 @@ public class PlayerSpawner : MonoBehaviour {
         }
         else
         {
-            Vector3 newPlayerPosition = DataManager.instance.SavedPlayerSpawn.playerPosition;
-            Quaternion newPlayerRotation = DataManager.instance.SavedPlayerSpawn.playerRotation;
-            Player spawnedPlayer = Instantiate(playerToSpawn, newPlayerPosition, newPlayerRotation);
+            // calculate spawn positions for readability
+            Vector3 newPlayerPosition = gameManager.PlayerSpawn.playerPosition;
+            Quaternion newPlayerRotation = gameManager.PlayerSpawn.playerRotation;
+            ActivePlayer = Instantiate(playerToSpawn, newPlayerPosition, newPlayerRotation);
             // rename it so that we don't have the 'clone' tag after spawning
-            spawnedPlayer.gameObject.name = spawnedPlayerName;
-            // set in GameManager singleton so that it's easier to access
-            gameManager.SetPlayer(spawnedPlayer);
-            // notify anything else, if they care
-            OnPlayerSpawn.Invoke(spawnedPlayer);
+            ActivePlayer.gameObject.name = spawnedPlayerName;
+            OnPlayerSpawn.Invoke(ActivePlayer);
+            // listen for when the player dies, so we know when to despawn
+            ActivePlayer.OnPlayerDeath += HandlePlayerDeath;
         }
+    }
+
+    void HandlePlayerDeath()
+    {
+        // stop listening, then handle despawn/respawn
+        ActivePlayer.OnPlayerDeath -= HandlePlayerDeath;
+        PlayerDespawn(despawnTimeAfterDeath);
     }
 
     public IEnumerator PlayerRespawn(float timeUntilSpawn)
@@ -124,5 +137,13 @@ public class PlayerSpawner : MonoBehaviour {
             return true;
         else
             return false;
+    }
+
+    IEnumerator PlayerDespawn(float despawnTime)
+    {
+        yield return new WaitForSeconds(despawnTime);
+        OnPlayerDespawn.Invoke(ActivePlayer);
+        // destory the player, as the final step
+        Destroy(ActivePlayer.gameObject);
     }
 }

@@ -46,6 +46,13 @@ public class Health : MonoBehaviour, IDamageable {
         // player is alive once again
         isDead = false;
     }
+
+    void OnDestroy()
+    {
+        OnTakeDamage.RemoveAllListeners();
+        OnHeal.RemoveAllListeners();
+        OnDeath.RemoveAllListeners();
+    }
     #endregion
 
     //Subtract amount from the current health

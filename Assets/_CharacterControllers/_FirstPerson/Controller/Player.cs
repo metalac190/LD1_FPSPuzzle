@@ -16,11 +16,6 @@ public class Player : MonoBehaviour, IPlayer {
     [SerializeField] GameObject[] disableGameObjectsOnDeath;    // gameObjects to disable on death
 
     public event Action OnPlayerDeath = delegate { };   // player has died
-    public event Action OnPlayerDespawn = delegate { }; // player has been removed from Game World
-
-    [Header("General Settings")]
-    [SerializeField] float despawnTimeAfterDeath = 2f;
-    //public UnityEvent OnPlayerSpawn;
 
     public bool CanControl { get; private set; }
     public bool IsPlayerStunned { get; private set; }
@@ -120,14 +115,7 @@ public class Player : MonoBehaviour, IPlayer {
     {
         DisablePlayer();
         OnPlayerDeath.Invoke();
-        StartCoroutine(PlayerDespawn(despawnTimeAfterDeath));
-    }
-
-    IEnumerator PlayerDespawn(float despawnTime)
-    {
-        yield return new WaitForSeconds(despawnTime);
-        OnPlayerDespawn.Invoke();
-        Destroy(gameObject);
+        //StartCoroutine(PlayerDespawn(despawnTimeAfterDeath));
     }
 
     //Disable the player properly

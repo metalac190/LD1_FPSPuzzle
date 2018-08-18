@@ -48,4 +48,9 @@ public class SceneLoader : MonoBehaviour {
     {
         Application.Quit();
     }
+
+    public static int GetCurrentSceneIndex()
+    {
+        return SceneManager.GetActiveScene().buildIndex;
+    }
 }

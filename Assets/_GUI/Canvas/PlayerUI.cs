@@ -15,7 +15,7 @@ public class PlayerUI : MonoBehaviour {
     Health playerHealth;
 
     //Initialize UI values to their starting defaults
-    public void Initialize(Player player)
+    public void ConnectToNewPlayer(Player player)
     {
         // inject
         playerHealth = player.GetComponent<Health>();
@@ -32,12 +32,6 @@ public class PlayerUI : MonoBehaviour {
         healthSlider.value = playerHealth.CurrentHealth;
     }
 
-    private void OnDestroy()
-    {
-        playerHealth.OnTakeDamage.RemoveListener(HandleTakeDamage);
-        playerHealth.OnHeal.RemoveListener(HandleHeal);
-    }
-
     void HandleTakeDamage()
     {
         healthSlider.maxValue = playerHealth.MaxHealth;
@@ -50,5 +44,11 @@ public class PlayerUI : MonoBehaviour {
         healthSlider.maxValue = playerHealth.MaxHealth;
         healthSlider.value = playerHealth.CurrentHealth;
         // add visual
+    }
+
+    // disconnect from current player
+    public void ClearPlayer()
+    {
+        
     }
 }

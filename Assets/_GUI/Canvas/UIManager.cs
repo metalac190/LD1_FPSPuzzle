@@ -10,33 +10,44 @@ public class UIManager : MonoBehaviour {
     [SerializeField] PauseUI pauseUI;
 
     PlayerSpawner playerSpawner;
+    GameManager gameManager;
 
-    private void Awake()
+    private void Initialize(GameManager gameManager)
+    {
+        // inject
+        this.gameManager = gameManager;
+        // events
+        gameManager.OnIntroState += HandleIntroState;
+        gameManager.OnGameState += HandleGameState;
+    }
+
+    private void OnDestroy()
+    {
+        gameManager.OnIntroState -= HandleIntroState;
+        gameManager.OnGameState -= HandleGameState;
+    }
+
+    void HandleIntroState()
     {
 
     }
 
-    private void Start()
+    void HandleGameState()
     {
 
-    }
-
-    private void Initialize()
-    {
-        
-    }
-
-    public void DisablePlayerUI()
-    {
-        playerUI.gameObject.SetActive(false);
     }
 
     void HandlePlayerSpawn(Player player)
     {
-        playerUI.Initialize(player);
+        playerUI.ConnectToNewPlayer(player);
     }
 
     void HandlePlayerDespawn()
+    {
+        playerUI.ClearPlayer();
+    }
+
+    public void DisablePlayerUI()
     {
         playerUI.gameObject.SetActive(false);
     }
@@ -47,4 +58,6 @@ public class UIManager : MonoBehaviour {
         // disable each one of the panel game objects
 
     }
+
+
 }

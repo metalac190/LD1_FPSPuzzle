@@ -49,11 +49,13 @@ public class CameraController : MonoBehaviour {
     private void OnEnable()
     {
         playerSpawner.OnPlayerSpawn += HandlePlayerSpawn;
+        playerSpawner.OnPlayerDespawn += HandlePlayerDespawn;
     }
 
     private void OnDisable()
     {
         playerSpawner.OnPlayerSpawn -= HandlePlayerSpawn;
+        playerSpawner.OnPlayerDespawn -= HandlePlayerDespawn;
     }
 
     // turn off all of our level cameras, in case they were left on accidentally
@@ -91,15 +93,11 @@ public class CameraController : MonoBehaviour {
             SetPlayerCamera(activePlayer.PlayerCamera);
         }
         ActivatePlayerCamera();
-        //activePlayer.OnPlayerDespawn += HandlePlayerDeath;
-        activePlayer.OnPlayerDespawn += HandlePlayerDespawn;
     }
 
     // clean up for when player dies
-    void HandlePlayerDespawn()
+    void HandlePlayerDespawn(Player player)
     {
-        // player has died, stop listening
-        activePlayer.OnPlayerDespawn -= HandlePlayerDespawn;
         activePlayer = null;
         ActivateSceneCamera();
     }
