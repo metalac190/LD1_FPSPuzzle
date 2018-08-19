@@ -247,12 +247,4 @@ public class Player : MonoBehaviour, IPlayer {
     }
 
     #endregion
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            health.Kill();
-        }
-    }
 }

@@ -8,21 +8,36 @@ public class FirstPersonInput : MonoBehaviour {
     public bool JumpInput { get; private set; }   // boolean for whether or not we've received jump input
 
     FirstPersonMotor firstPersonMotor;
-    //Player player;
+    Player player;
 
     private void Awake()
     {
         // caching
         firstPersonMotor = GetComponent<FirstPersonMotor>();
-        //player = GetComponent<Player>();
+        player = GetComponent<Player>();
     }
 
     private void Update()
     {
-        ProcessMoveInput();
-        ProcessRotateInput();
-        ProcessRunningInput();
-        ProcessJumpInput();
+        // if we can control, process player like normal
+        if (player.CanControl)
+        {
+            ProcessMoveInput();
+            ProcessRotateInput();
+            ProcessRunningInput();
+            ProcessJumpInput();
+        }
+        // if we can't control, make sure we default input to 0
+        else
+        {
+            ZeroInput();
+        }
+    }
+
+    void ZeroInput()
+    {
+        firstPersonMotor.SetMoveInput(Vector2.zero);
+        firstPersonMotor.SetRotateInput(Vector2.zero);
     }
 
     //Calculate and send out Movement Input to the FPS Controller

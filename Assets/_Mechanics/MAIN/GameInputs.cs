@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-[RequireComponent(typeof(PlayerSpawner))]
 public class GameInputs : MonoBehaviour {
 
     PlayerSpawner playerSpawner;
     GameManager gameManager;
+
+    [SerializeField] bool isDebug;
 
     private void Awake()
     {
@@ -22,17 +23,23 @@ public class GameInputs : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        // handle Wait State inputs
+        // handle debug inputs
+        if (isDebug)
+        {
+            CheckDebugInput();
+        }
+        // handle Pause inputs
         if (gameManager.IsPaused)
         {
             CheckUnpauseInput();
             return;
         }
-
+        // handle Wait State inputs
         if (gameManager.CurrentGameState == GameState.Wait)
         {
             CheckQuitInput();
             CheckSpawnInput();
+            return;
         }
         // handle Game State inputs
         if (gameManager.CurrentGameState == GameState.Game)
@@ -42,6 +49,7 @@ public class GameInputs : MonoBehaviour {
             CheckReloadInput();
             CheckReverseCheckpointInput();
             CheckAdvanceCheckpointInput();
+            return;
         }
     }
 
@@ -91,7 +99,7 @@ public class GameInputs : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            gameManager.Pause();
+            gameManager.ActivatePause();
         }
     }
 
@@ -99,7 +107,24 @@ public class GameInputs : MonoBehaviour {
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            gameManager.Unpause();
+            gameManager.ActivateUnpause();
+        }
+    }
+
+    void CheckDebugInput()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            Player player = FindObjectOfType<Player>();
+            if (player != null)
+            {
+                Debug.Log("Kill the player");
+                player.GetComponent<Health>().Kill();
+            }
+            else
+            {
+                Debug.Log("No Player health found");
+            }
         }
     }
     #endregion

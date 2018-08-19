@@ -26,11 +26,12 @@ public class CameraController : MonoBehaviour {
         // external references
         playerSpawner = FindObjectOfType<PlayerSpawner>();
         gameManager = FindObjectOfType<GameManager>();
+        // fill in empty references
+        SetDefaultStates();
     }
 
     private void Start()
     {
-        SetDefaultStates();
         DisableLevelCameras();
         DetermineActiveCamera();
     }

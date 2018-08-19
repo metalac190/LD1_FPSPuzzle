@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
 /// DataManager holds most of the persistent game data, and is responsible for holding it. Other scripts
 /// can access this at any point as it's a Singleton
@@ -28,6 +29,8 @@ public class DataManager : MonoBehaviour {
             return instance;
         }
     }
+
+    public event Action OnSave = delegate { };
 
     [SerializeField] PlayerSpawnData savedPlayerSpawn = new PlayerSpawnData();      // player spawn data
     public PlayerSpawnData SavedPlayerSpawn { get { return savedPlayerSpawn; } }
@@ -71,7 +74,13 @@ public class DataManager : MonoBehaviour {
     // Called anytime a new scene is loaded/reloaded. Optional, just wanted the hookup for now
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        
+
+    }
+
+    public void ActivateSave()
+    {
+        Debug.Log("...Saving...");
+        OnSave.Invoke();
     }
 
     // Change our saved value, persistent

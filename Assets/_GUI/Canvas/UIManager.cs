@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This class is responsible for feeding gameplay connections and references into the individual UI Canvases. It
+/// also displays/hides relevant canvases at different points during the game state
+/// </summary>
 public class UIManager : MonoBehaviour {
 
     [SerializeField] WaitUI waitUI;
@@ -12,18 +16,19 @@ public class UIManager : MonoBehaviour {
     PlayerSpawner playerSpawner;
     GameManager gameManager;
 
-    public void Initialize(GameManager gameManager)
+    public void Awake ()
     {
         // inject
-        this.gameManager = gameManager;
+        gameManager = FindObjectOfType<GameManager>();
         playerSpawner = FindObjectOfType<PlayerSpawner>();
         // events
         gameManager.OnWaitState += HandleWaitState;
         gameManager.OnGameState += HandleGameState;
         gameManager.OnPause += HandlePause;
         gameManager.OnUnpause += HandleUnpause;
-        playerSpawner.OnPlayerSpawn += HandlePlayerSpawn;
-        playerSpawner.OnPlayerDespawn += HandlePlayerDespawn;
+        // initialize
+        playerUI.Initialize(playerSpawner);
+        pauseUI.Initialize(gameManager);
         // disable all panels by default, to account for designer leaving them on
         DisableAllPanels();
     }
@@ -32,6 +37,8 @@ public class UIManager : MonoBehaviour {
     {
         gameManager.OnWaitState -= HandleWaitState;
         gameManager.OnGameState -= HandleGameState;
+        gameManager.OnPause -= HandlePause;
+        gameManager.OnPause -= HandleUnpause;
     }
 
     void HandleWaitState()
@@ -57,18 +64,6 @@ public class UIManager : MonoBehaviour {
     void HandleUnpause()
     {
         pauseUI.gameObject.SetActive(false);
-    }
-
-    void HandlePlayerSpawn(Player player)
-    {
-        // enable player UI
-        playerUI.ConnectToNewPlayer(player);
-    }
-
-    void HandlePlayerDespawn(Player player)
-    {
-        // disable player UI
-        playerUI.ClearPlayer();
     }
 
     //Use this function to disable all of your panels. Useful for creating a clean slate

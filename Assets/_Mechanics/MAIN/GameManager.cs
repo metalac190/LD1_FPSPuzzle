@@ -6,9 +6,8 @@ using UnityEngine.SceneManagement;
 
 public enum GameState { Wait, Game};
 // Game Manager holds most of the level relevant game data
-[RequireComponent(typeof(PlayerSpawner))]
-[RequireComponent(typeof(CollectibleSpawner))]
 [RequireComponent(typeof(GameInputs))]
+[RequireComponent(typeof(PlayerSpawner))]
 public class GameManager : MonoBehaviour {
 
     public GameState CurrentGameState { get; private set; }
@@ -26,17 +25,64 @@ public class GameManager : MonoBehaviour {
     public List<float> UnsavedCollectedIDs { get { return unsavedColledIDs; } }
     // state variables
     public bool IsPaused = false;
+    // reference to the player
+    public Player ActivePlayer { get; private set; }
+
+    GameInputs gameInputs;
+    PlayerSpawner playerSpawner;
 
     public void Awake()
     {
+        // fill local references
+        CheckFilledReferences();
         // load game data 
         LoadData();
+        // events
+        SubscribeToEvents();
         // Initialize relevant scripts
-        GetComponent<PlayerSpawner>().Initialize(this);
-        FindObjectOfType<CollectibleSpawner>().Initialize(this);
-        GetComponent<GameInputs>().Initialize(this);
-        FindObjectOfType<UIManager>().Initialize(this);
+        playerSpawner.Initialize(this);
+        gameInputs.Initialize(this);
+        // destroy any players in level, just in case
+    }
+
+    // if required references aren't filled, search instead
+    void CheckFilledReferences()
+    {
+        playerSpawner = GetComponent<PlayerSpawner>();
+        gameInputs = GetComponent<GameInputs>();
+    }
+
+    private void OnDisable()
+    {
+        DataManager.Instance.OnSave -= HandleSave;
+        playerSpawner.OnPlayerSpawn -= HandlePlayerSpawn;
+        playerSpawner.OnPlayerDespawn -= HandlePlayerDespawn;
+    }
+
+    private void Start()
+    {
         // set initial game state
+        ActivateWaitState();
+    }
+
+    void SubscribeToEvents()
+    {
+        DataManager.Instance.OnSave += HandleSave;
+        playerSpawner.OnPlayerSpawn += HandlePlayerSpawn;
+        playerSpawner.OnPlayerDespawn += HandlePlayerDespawn;
+    }
+
+    void HandlePlayerSpawn(Player player)
+    {
+        // store the new player so that other objects can easily access it
+        ActivePlayer = player;
+    }
+
+    void HandlePlayerDespawn(Player player)
+    {
+        // player has been despawned, clear out the active player
+        ActivePlayer = null;
+        // no player, we are now in wait state
         ActivateWaitState();
     }
 
@@ -57,23 +103,23 @@ public class GameManager : MonoBehaviour {
         OnGameState.Invoke();
     }
 
-    public void Pause()
+    public void ActivatePause()
     {
         IsPaused = true;
         Time.timeScale = 0;
-        //TODO lock player mouse movement
+        FindObjectOfType<Player>().SetControllable(false);
         OnPause.Invoke();
     }
 
-    public void Unpause()
+    public void ActivateUnpause()
     {
         IsPaused = false;
         Time.timeScale = 1;
-        //TODO lock player mouse movement
+        FindObjectOfType<Player>().SetControllable(true);
         OnUnpause.Invoke();
     }
 
-    public void SaveData()
+    public void HandleSave()
     {
         Debug.Log("Save...");
         DataManager.Instance.SavePlayerInventory(playerInventory);
