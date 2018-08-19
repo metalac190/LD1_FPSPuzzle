@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour {
     public event Action OnPause = delegate { };
     public event Action OnUnpause = delegate { };
     public event Action OnCollectibleChange = delegate { };
+    public event Action OnSave = delegate { };
     // level data (not persistent)
     [SerializeField] InventoryData playerInventory = new InventoryData();
     public InventoryData PlayerInventory { get { return playerInventory; } }
@@ -35,8 +36,6 @@ public class GameManager : MonoBehaviour {
     {
         // fill local references
         CheckFilledReferences();
-        // load game data 
-        LoadData();
         // events
         SubscribeToEvents();
         // Initialize relevant scripts
@@ -54,7 +53,6 @@ public class GameManager : MonoBehaviour {
 
     private void OnDisable()
     {
-        DataManager.Instance.OnSave -= HandleSave;
         playerSpawner.OnPlayerSpawn -= HandlePlayerSpawn;
         playerSpawner.OnPlayerDespawn -= HandlePlayerDespawn;
     }
@@ -67,7 +65,6 @@ public class GameManager : MonoBehaviour {
 
     void SubscribeToEvents()
     {
-        DataManager.Instance.OnSave += HandleSave;
         playerSpawner.OnPlayerSpawn += HandlePlayerSpawn;
         playerSpawner.OnPlayerDespawn += HandlePlayerDespawn;
     }
@@ -80,13 +77,11 @@ public class GameManager : MonoBehaviour {
 
     void HandlePlayerDespawn(Player player)
     {
-        // player has been despawned, clear out the active player
-        ActivePlayer = null;
-        // no player, we are now in wait state
-        ActivateWaitState();
+        // player has despawned. Reload our current scene
+        SceneLoader.ReloadSceneStatic();
     }
 
-    public void LoadData()
+    public void LoadPlayerData()
     {
         playerInventory = DataManager.Instance.SavedPlayerInventory;
     }
@@ -119,13 +114,14 @@ public class GameManager : MonoBehaviour {
         OnUnpause.Invoke();
     }
 
-    public void HandleSave()
+    public void ActivateSave()
     {
-        Debug.Log("Save...");
         DataManager.Instance.SavePlayerInventory(playerInventory);
         DataManager.Instance.SaveCollectibleUIDs(UnsavedCollectedIDs);
         // clear out our unsaved list, since we moved them all to our saved list.
         UnsavedCollectedIDs.Clear();
+        // let anything else that needs to save do their thing as well
+        OnSave.Invoke();
     }
 
     public void AddCollectible(float uID, CollectibleType collectibleType)

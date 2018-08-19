@@ -12,6 +12,7 @@ public class UIManager : MonoBehaviour {
     [SerializeField] PlayerUI playerUI;
     [SerializeField] MessageUI messageUI;
     [SerializeField] PauseUI pauseUI;
+    [SerializeField] CursorController cursorController;
 
     PlayerSpawner playerSpawner;
     GameManager gameManager;
@@ -29,6 +30,7 @@ public class UIManager : MonoBehaviour {
         // initialize
         playerUI.Initialize(playerSpawner);
         pauseUI.Initialize(gameManager);
+        cursorController.Initialize(gameManager);
         // disable all panels by default, to account for designer leaving them on
         DisableAllPanels();
     }

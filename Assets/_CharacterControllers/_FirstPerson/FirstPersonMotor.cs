@@ -182,8 +182,6 @@ public class FirstPersonMotor : MonoBehaviour, IPlayerMotor
         ProgressStepCycle(speed);
         // handle our camera, according to whether we're walking or running
         UpdateCameraHeadBobPosition(speed);
-        // check whether our cursor should still be locked
-        mouseLook.UpdateCursorLock();
     }
     #endregion
 

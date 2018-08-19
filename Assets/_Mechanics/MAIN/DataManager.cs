@@ -30,8 +30,6 @@ public class DataManager : MonoBehaviour {
         }
     }
 
-    public event Action OnSave = delegate { };
-
     [SerializeField] PlayerSpawnData savedPlayerSpawn = new PlayerSpawnData();      // player spawn data
     public PlayerSpawnData SavedPlayerSpawn { get { return savedPlayerSpawn; } }
     [SerializeField] InventoryData savedPlayerInventory = new InventoryData();      // player inventory data
@@ -75,12 +73,6 @@ public class DataManager : MonoBehaviour {
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
 
-    }
-
-    public void ActivateSave()
-    {
-        Debug.Log("...Saving...");
-        OnSave.Invoke();
     }
 
     // Change our saved value, persistent

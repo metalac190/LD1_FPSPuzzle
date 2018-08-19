@@ -11,7 +11,6 @@ public class MouseLook
     [SerializeField] float maximumX = 90F;          // maximum bounds of vertical camera rotation
     [SerializeField] bool smoothMovement = false;       // should we smooth camera rotation. Gives a 'lag' feel, but realistic
     [SerializeField] float smoothTime = 5f;         // if smooth is enabled, how much should we smooth?
-    [SerializeField] bool lockCursor = true;        // should 
   
     // states
     private bool isCursorLocked = true;         // current state of cursor lock
@@ -53,57 +52,6 @@ public class MouseLook
         {
             _character.localRotation = characterTargetRot;
             _camera.localRotation = cameraTargetRot;
-        }
-        // handle our cursor lock
-        UpdateCursorLock();
-    }
-
-    //Do all checking for managing whether or not the Cursor should be locked
-    public void UpdateCursorLock()
-    {
-        //if the user set "lockCursor" we check & properly lock the cursos
-        if (lockCursor)
-            InternalLockUpdate();
-    }
-
-    //Enables or Disables the cursor. Useful cause we don't want our mouse to show in FPS games
-    public void SetCursorLock(bool _value)
-    {
-        // assign the lockCursor to the received value
-        lockCursor = _value;
-        if (!lockCursor)
-        {//we force unlock the cursor if the user disable the cursor locking helper
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-    }
-
-    //Handle all potential cursor lock scenarios
-    private void InternalLockUpdate()
-    {
-        // if we press Escape, disable
-        if(Input.GetKeyUp(KeyCode.Escape))
-        {
-            isCursorLocked = false;
-        }
-        // if we've clicked in the game, we're playing. Lock the cursor
-        else if(Input.GetMouseButtonUp(0))
-        {
-            isCursorLocked = true;
-        }
-
-        // otherwise keep the cursor state the same!
-        // if the cursor is locked, keep it locked and hidden
-        if (isCursorLocked)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        // if the cursor is not locked, keep it unlocked and visible
-        else if (!isCursorLocked)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
         }
     }
 
