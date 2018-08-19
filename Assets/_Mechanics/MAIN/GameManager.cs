@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField] List<float> unsavedColledIDs = new List<float>();
     public List<float> UnsavedCollectedIDs { get { return unsavedColledIDs; } }
     // state variables
-    public bool IsPaused = false;
+    public bool IsPaused { get; private set; }
     // reference to the player
     public Player ActivePlayer { get; private set; }
 

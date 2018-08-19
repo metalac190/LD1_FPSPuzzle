@@ -8,7 +8,7 @@ public class PlayerUI : MonoBehaviour {
 
     [Header("UI Objects")]
     [SerializeField] Slider healthSlider;       // slider that keeps track of health     
-    [SerializeField] Image damageFlash;         // flashes when damage is received
+    [SerializeField] FlashImage damageFlash;    // script that flashes UI when we take damage
     int playerMaxHealth;    // max value for player health
     int playerCurrentHealth;    // health value to keep track of  
 
@@ -46,7 +46,8 @@ public class PlayerUI : MonoBehaviour {
     {
         healthSlider.maxValue = playerHealth.MaxHealth;
         healthSlider.value = playerHealth.CurrentHealth;
-        // add visual
+        // visual feedback
+        damageFlash.Flash(false);
     }
 
     void HandleHeal()

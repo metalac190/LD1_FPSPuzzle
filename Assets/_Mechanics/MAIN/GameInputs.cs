@@ -119,7 +119,7 @@ public class GameInputs : MonoBehaviour {
             if (player != null)
             {
                 Debug.Log("Kill the player");
-                player.GetComponent<Health>().Kill();
+                player.GetComponent<Health>().TakeDamage(15);
             }
             else
             {
