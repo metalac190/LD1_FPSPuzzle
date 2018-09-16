@@ -17,13 +17,15 @@ public class GameManager : MonoBehaviour {
     // game events
     public event Action OnPause = delegate { };
     public event Action OnUnpause = delegate { };
-    public event Action OnCollectibleChange = delegate { };
+    public event Action OnCollect = delegate { };
     public event Action OnSave = delegate { };
-    // level data (not persistent)
+    // values associated with collectibles
     [SerializeField] InventoryData playerInventory = new InventoryData();
     public InventoryData PlayerInventory { get { return playerInventory; } }
-    [SerializeField] List<float> unsavedColledIDs = new List<float>();
-    public List<float> UnsavedCollectedIDs { get { return unsavedColledIDs; } }
+    //TODO convert
+    [SerializeField] List<float> unsavedCollectedIDs = new List<float>();
+    public List<float> UnsavedCollectedIDs { get { return unsavedCollectedIDs; } }
+
     // state variables
     public bool IsPaused { get; private set; }
     // reference to the player
@@ -31,6 +33,7 @@ public class GameManager : MonoBehaviour {
 
     GameInputs gameInputs;
     PlayerSpawner playerSpawner;
+    CollectibleSpawner collectibleSpawner;
 
     public void Awake()
     {
@@ -41,7 +44,7 @@ public class GameManager : MonoBehaviour {
         // Initialize relevant scripts
         playerSpawner.Initialize(this);
         gameInputs.Initialize(this);
-        // destroy any players in level, just in case
+        collectibleSpawner.Initialize(this);
     }
 
     // if required references aren't filled, search instead
@@ -141,6 +144,6 @@ public class GameManager : MonoBehaviour {
                 break;
         }
         // update UI to account for collectibles
-        OnCollectibleChange.Invoke();
+        OnCollect.Invoke();
     }
 }
