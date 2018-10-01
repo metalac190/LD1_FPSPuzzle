@@ -1,2 +1,2 @@
 ﻿
-public enum CollectibleType { small, large };
+public enum CollectibleType { small, large, key };

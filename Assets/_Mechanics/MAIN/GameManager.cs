@@ -8,32 +8,29 @@ public enum GameState { Wait, Game};
 // Game Manager holds most of the level relevant game data
 [RequireComponent(typeof(GameInputs))]
 [RequireComponent(typeof(PlayerSpawner))]
+[RequireComponent(typeof(CollectibleSpawner))]
+[RequireComponent(typeof(CollectibleManager))]
 public class GameManager : MonoBehaviour {
 
     public GameState CurrentGameState { get; private set; }
     // game state events
     public event Action OnWaitState = delegate { };
     public event Action OnGameState = delegate { };
+
     // game events
+    public event Action OnSave = delegate { };
     public event Action OnPause = delegate { };
     public event Action OnUnpause = delegate { };
-    public event Action OnCollect = delegate { };
-    public event Action OnSave = delegate { };
-    // values associated with collectibles
-    [SerializeField] InventoryData playerInventory = new InventoryData();
-    public InventoryData PlayerInventory { get { return playerInventory; } }
-    //TODO convert
-    [SerializeField] List<float> unsavedCollectedIDs = new List<float>();
-    public List<float> UnsavedCollectedIDs { get { return unsavedCollectedIDs; } }
 
     // state variables
     public bool IsPaused { get; private set; }
-    // reference to the player
+    // easy-to-access variables
     public Player ActivePlayer { get; private set; }
 
     GameInputs gameInputs;
     PlayerSpawner playerSpawner;
     CollectibleSpawner collectibleSpawner;
+    CollectibleManager collectibleManager;
 
     public void Awake()
     {
@@ -45,6 +42,7 @@ public class GameManager : MonoBehaviour {
         playerSpawner.Initialize(this);
         gameInputs.Initialize(this);
         collectibleSpawner.Initialize(this);
+        collectibleManager.Initialize(this);
     }
 
     // if required references aren't filled, search instead
@@ -52,6 +50,8 @@ public class GameManager : MonoBehaviour {
     {
         playerSpawner = GetComponent<PlayerSpawner>();
         gameInputs = GetComponent<GameInputs>();
+        collectibleSpawner = GetComponent<CollectibleSpawner>();
+        collectibleManager = GetComponent<CollectibleManager>();
     }
 
     private void OnDisable()
@@ -84,11 +84,6 @@ public class GameManager : MonoBehaviour {
         SceneLoader.ReloadSceneStatic();
     }
 
-    public void LoadPlayerData()
-    {
-        playerInventory = DataManager.Instance.SavedPlayerInventory;
-    }
-
     public void ActivateWaitState()
     {
         CurrentGameState = GameState.Wait;
@@ -105,7 +100,7 @@ public class GameManager : MonoBehaviour {
     {
         IsPaused = true;
         Time.timeScale = 0;
-        FindObjectOfType<Player>().SetControllable(false);
+        ActivePlayer.SetControllable(false);
         OnPause.Invoke();
     }
 
@@ -113,37 +108,20 @@ public class GameManager : MonoBehaviour {
     {
         IsPaused = false;
         Time.timeScale = 1;
-        FindObjectOfType<Player>().SetControllable(true);
+        ActivePlayer.SetControllable(true);
         OnUnpause.Invoke();
     }
 
     public void ActivateSave()
     {
-        DataManager.Instance.SavePlayerInventory(playerInventory);
-        DataManager.Instance.SaveCollectibleUIDs(UnsavedCollectedIDs);
-        // clear out our unsaved list, since we moved them all to our saved list.
-        UnsavedCollectedIDs.Clear();
-        // let anything else that needs to save do their thing as well
         OnSave.Invoke();
     }
 
-    public void AddCollectible(float uID, CollectibleType collectibleType)
+    private void Update()
     {
-        // add the uID, so we know not to spawn it in the world on a future run
-        // add to inventory based on collectible type
-        switch (collectibleType)
+        if (Input.GetKeyDown(KeyCode.T))
         {
-            case CollectibleType.small:
-                PlayerInventory.smallCollectibles++;
-                break;
-            case CollectibleType.large:
-                //TODO add the large collectible
-                break;
-            default:
-                Debug.LogWarning("collectible type not valid");
-                break;
+            ActivateSave();
         }
-        // update UI to account for collectibles
-        OnCollect.Invoke();
     }
 }
